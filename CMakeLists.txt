@@ -21,7 +21,8 @@ set(CLIENT
         src/client/ClientProcess.cpp src/client/ClientProcess.h)
 
 set(SERVER
-        src/server/ServerProcess.cpp src/server/ServerProcess.h)
+        src/server/ServerProcess.cpp src/server/ServerProcess.h
+        src/server/worker/WorkerProcess.cpp src/server/worker/WorkerProcess.h)
 
 set(SOURCE_FILES src/main.cpp)
 

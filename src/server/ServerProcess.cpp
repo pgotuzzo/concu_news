@@ -4,7 +4,7 @@
 #include "ServerProcess.h"
 #include "../ipc/socket/ServerSocket.h"
 #include "../cons/Constants.h"
-#include "../cons/Definition.h"
+#include "worker/WorkerProcess.h"
 
 using namespace std;
 
@@ -15,34 +15,21 @@ int ServerProcess::live() {
     if (pid != 0) {
         return pid;
     }
-    // FIXME - Implement REAL logic
     cout << "Server inicializado" << endl;
     try {
         ServerSocket socket(SERVER_PORT);
-        int fdClient = socket.getConnection();
-        cout << "Cliente conectado" << endl;
-        bool connected = true;
-        while (connected) {
-            ClientRequest request = {};
-            ssize_t res = read(fdClient, &request, sizeof(ClientRequest));
-            if (res == -1) {
-                throw "Fallo al intentar leer";
-            } else if (res == 0) {
-                connected = false;
-                cout << "Cliente desconectado" << endl;
-            } else {
-                cout << "Pedido: " << endl
-                     << "Commando: " << request.operation << endl
-                     << "Consulta: " << request.query << endl;
-
-                string response = "La respuesta es JAPON";
-                write(fdClient, response.c_str(), sizeof(char) * response.size());
-
-            }
+        while (true) {
+            int fdClient = socket.getConnection();
+            cout << "Cliente conectado. Se le asigna un worker" << endl;
+            WorkerProcess worker(fdClient);
+            worker.live();
         }
-    } catch (...) {
-        cout << "Algo salio mal...LOGS" << endl;
+    } catch (SocketCreationException &e) {
+        cout << "Algo salio mal a la hora de CREAR el socket...LOGS" << endl;
+        cout << e.what() << endl;
+    } catch (SocketConnectException &e) {
+        cout << "Algo salio mal a la hora de CONECTARSE al cliente...LOGS" << endl;
+        cout << e.what() << endl;
     }
-
     exit(0);
 }

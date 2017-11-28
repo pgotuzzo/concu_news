@@ -80,6 +80,10 @@ void ClientProcess::welcome() {
     cout << "================================================================<<" << endl;
 }
 
+/**
+ * TODO - Agregar soporte para usuarios admin
+ * Hasta el momento solo se contemplan consultas
+ */
 bool ClientProcess::readInput(ClientRequest *request) {
     string line;
     getline(cin, line);
