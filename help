@@ -1,0 +1,21 @@
+NOMBRE
+     concu_news -- Noticias Concu
+
+RESUMEN
+     concu_news
+     concu_news [-admin] [nombre de usuario]
+     concu_news [-h]
+
+DESCRIPCION
+     Hay dos modos de ejecucion. Si se invoca sin ningun parametro el modo SERVER va a tener lugar y el mismo se
+     va a encargar de gestionar toda la infraestructura necesaria para poder obtener las ultimas novedades:
+         - Tiempo para distintas ciudades
+         - Tipo de cambio
+
+     Si por el contrario se intenta iniciar en modo usuario, entonces un nombre debera ser provisto, siendo opcional
+     el atributo [-admin] a traves del cual se le dara acceso para agregar/modificar/eliminar informacion dentro de la
+     base de datos del sistema
+
+      -h          Muestra ayuda
+
+      -admin      Usuario con permisos de ADMINISTRADOR
