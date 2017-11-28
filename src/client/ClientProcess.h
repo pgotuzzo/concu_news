@@ -20,7 +20,7 @@ private:
 
     bool readInput(ClientRequest *request);
 
-    void processRequest(ClientRequest request);
+    bool processRequest(ClientRequest request);
 
 public:
     ClientProcess(const char *name, bool &isAdmin);

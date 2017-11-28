@@ -39,7 +39,7 @@ int ClientProcess::live() {
                 if (request.operation == END) {
                     end = true;
                 } else {
-                    processRequest(request);
+                    end = !processRequest(request);
                 }
             } else {
                 cout << "No entendiste nada!" << endl << "Relee las opciones y volve a intentarlo" << endl;
@@ -95,11 +95,22 @@ bool ClientProcess::readInput(ClientRequest *request) {
     return valid;
 }
 
-void ClientProcess::processRequest(ClientRequest request) {
+bool ClientProcess::processRequest(ClientRequest request) {
     cout << "Procesando pedido..." << endl;
-    string msg = "Soy un pedido";
-    socket->send(msg.c_str(), sizeof(char) * msg.size());
+    ssize_t res = socket->send(&request, sizeof(ClientRequest));
+    bool success = true;
+    string errorMsg;
+    if (res <= 0) {
+        success = false;
+        cout << "Se perdio conexion con el servidor. Intente nuevamente mas tarde." << endl;
+    }
     char response[255] = "";
-    socket->receive(response, sizeof(char) * 255);
-    cout << response << endl;
+    res = socket->receive(response, sizeof(char) * 255);
+    if (res <= 0) {
+        success = false;
+        cout << "Se perdio conexion con el servidor. Intente nuevamente mas tarde." << endl;
+    } else {
+        cout << response << endl;
+    }
+    return success;
 }

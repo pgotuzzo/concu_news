@@ -4,6 +4,7 @@
 #include "ServerProcess.h"
 #include "../ipc/socket/ServerSocket.h"
 #include "../cons/Constants.h"
+#include "../cons/Definition.h"
 
 using namespace std;
 
@@ -22,15 +23,17 @@ int ServerProcess::live() {
         cout << "Cliente conectado" << endl;
         bool connected = true;
         while (connected) {
-            char buffer[255];
-            ssize_t res = read(fdClient, buffer, sizeof(char) * 255);
+            ClientRequest request = {};
+            ssize_t res = read(fdClient, &request, sizeof(ClientRequest));
             if (res == -1) {
                 throw "Fallo al intentar leer";
             } else if (res == 0) {
                 connected = false;
                 cout << "Cliente desconectado" << endl;
             } else {
-                cout << "Pedido: " << buffer << endl;
+                cout << "Pedido: " << endl
+                     << "Commando: " << request.operation << endl
+                     << "Consulta: " << request.query << endl;
 
                 string response = "La respuesta es JAPON";
                 write(fdClient, response.c_str(), sizeof(char) * response.size());
