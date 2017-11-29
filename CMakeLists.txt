@@ -22,7 +22,8 @@ set(CLIENT
 
 set(SERVER
         src/server/ServerProcess.cpp src/server/ServerProcess.h
-        src/server/worker/WorkerProcess.cpp src/server/worker/WorkerProcess.h)
+        src/server/worker/WorkerProcess.cpp src/server/worker/WorkerProcess.h
+        src/server/service/Service.cpp src/server/service/Service.h)
 
 set(SOURCE_FILES src/main.cpp)
 
@@ -30,5 +31,5 @@ add_executable(concu_news ${SOURCE_FILES} ${IPC} ${CONS} ${UTILS} ${CLIENT} ${SE
 
 configure_file(help ${CMAKE_CURRENT_BINARY_DIR}/help COPYONLY)
 
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/tmp)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/db)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/logs)
