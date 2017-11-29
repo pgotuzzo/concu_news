@@ -4,9 +4,9 @@
 #include "ServiceProcess.h"
 #include "../../util/FileUtils.h"
 
-Service::Service(const char *const path) : path(path) {}
+ServiceProcess::ServiceProcess(const char *const path) : path(path) {}
 
-int Service::live() {
+int ServiceProcess::live() {
     int pid = fork();
     if (pid != 0) {
         return pid;
@@ -22,7 +22,7 @@ int Service::live() {
     exit(0);
 }
 
-void Service::loadInfo() {
+void ServiceProcess::loadInfo() {
     createFileIfNotExists(path);
     ifstream file(path);
     string line;
@@ -37,7 +37,7 @@ void Service::loadInfo() {
     file.close();
 }
 
-void Service::saveInfo() {
+void ServiceProcess::saveInfo() {
     createFileIfNotExists(path);
     ofstream file(path);
     string line;

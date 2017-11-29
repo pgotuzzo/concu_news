@@ -6,7 +6,7 @@
 
 using namespace std;
 
-class Service {
+class ServiceProcess {
 private:
     const char *const path;
     map<string, string> mInfo;
@@ -16,7 +16,7 @@ private:
     void saveInfo();
 
 public:
-    Service(const char *path);
+    ServiceProcess(const char *path);
 
     int live();
 };

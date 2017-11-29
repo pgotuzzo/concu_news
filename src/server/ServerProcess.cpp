@@ -20,10 +20,10 @@ int ServerProcess::live() {
     // Microservicios
     cout << "Server inicializando..." << endl;
     cout << "Inicializando microservicio para informes de TEMPERATURAS" << endl;
-    Service tempService(PATH_DB_TEMPERATURES);
+    ServiceProcess tempService(PATH_DB_TEMPERATURES);
     tempService.live();
     cout << "Inicializando microservicio para informes de CAMBIO DE MONEDA" << endl;
-    Service currencyService(PATH_DB_CURRENCY);
+    ServiceProcess currencyService(PATH_DB_CURRENCY);
     currencyService.live();
     cout << "Server inicializado con exito!" << endl;
 
