@@ -1,10 +1,10 @@
 #include <fcntl.h>
 #include <fstream>
 #include <zconf.h>
-#include "Service.h"
+#include "ServiceProcess.h"
 #include "../../util/FileUtils.h"
 
-Service::Service(const char const *path) : path(path) {}
+Service::Service(const char *const path) : path(path) {}
 
 int Service::live() {
     int pid = fork();

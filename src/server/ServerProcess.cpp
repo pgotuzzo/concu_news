@@ -5,7 +5,7 @@
 #include "../ipc/socket/ServerSocket.h"
 #include "../cons/Constants.h"
 #include "worker/WorkerProcess.h"
-#include "service/Service.h"
+#include "service/ServiceProcess.h"
 #include "../cons/Path.h"
 
 using namespace std;

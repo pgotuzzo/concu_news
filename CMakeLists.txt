@@ -23,7 +23,7 @@ set(CLIENT
 set(SERVER
         src/server/ServerProcess.cpp src/server/ServerProcess.h
         src/server/worker/WorkerProcess.cpp src/server/worker/WorkerProcess.h
-        src/server/service/Service.cpp src/server/service/Service.h)
+        src/server/service/ServiceProcess.cpp src/server/service/ServiceProcess.h)
 
 set(SOURCE_FILES src/main.cpp)
 

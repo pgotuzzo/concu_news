@@ -1,5 +1,5 @@
-#ifndef CONCU_NEWS_SERVICE_H
-#define CONCU_NEWS_SERVICE_H
+#ifndef CONCU_NEWS_SERVICEPROCESS_H
+#define CONCU_NEWS_SERVICEPROCESS_H
 
 #include <string>
 #include <map>
@@ -16,10 +16,10 @@ private:
     void saveInfo();
 
 public:
-    Service(const char const *path);
+    Service(const char *path);
 
     int live();
 };
 
 
-#endif //CONCU_NEWS_SERVICE_H
+#endif //CONCU_NEWS_SERVICEPROCESS_H
