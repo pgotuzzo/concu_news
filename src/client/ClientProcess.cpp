@@ -7,13 +7,17 @@
 using namespace std;
 
 
-bool getOperationFromCommand(string &command, Operation *op) {
-    bool valid = false;
-    for (int i = WEATHER; i <= END; i++) {
-        auto aux = static_cast<Operation> (i);
-        if (MAP_COMMAND.at(aux) == command) {
-            *op = aux;
-            valid = true;
+bool getOperationFromCommand(string command_service, const string &command_operation, ServiceOperation *sop) {
+    auto operation = COMMAND_TO_OPERATION.find(command_operation);
+    bool valid = operation != COMMAND_TO_OPERATION.end();
+    if (valid) {
+        sop->operation = operation->second;
+        if (operation->second != END) {
+            auto service = COMMAND_TO_SERVICE.find(command_service);
+            valid = service != COMMAND_TO_SERVICE.end();
+            if (valid) {
+                sop->service = service->second;
+            }
         }
     }
     return valid;
@@ -32,7 +36,9 @@ int ClientProcess::live() {
         while (!end) {
             cout << "Que desea saber?" << endl;
             if (readInput(&request)) {
-                if (request.operation == END) {
+                if (request.serviceOperation.operation == END) {
+                    // Sends the end operation to the server.
+                    socket->send(&request, sizeof(ClientRequest));
                     end = true;
                 } else {
                     end = !processRequest(request);
@@ -68,10 +74,16 @@ ClientSocket *ClientProcess::connectWithServer() {
 void ClientProcess::welcome() {
     cout << "================================================================<<" << endl
          << "Bienvenido a Noticias Concu" << endl
-         << "A continuacion un breve resumen de las opciones disponibles:" << endl;
-    for (int i = WEATHER; i <= END; i++) {
-        auto op = static_cast<Operation> (i);
+         << "A continuacion un breve resumen de los servicios disponibles:" << endl;
+    for (int i = WEATHER; i <= CURRENCY; i++) {
+        auto op = static_cast<Service> (i);
         cout << "\t" << MAP_COMMAND.at(op) << ":\t" << MAP_COMMAND_EXPLANATION.at(op) << endl;
+    }
+    cout << "Y las operaciones posibles:" << endl;
+    // TODO: limitar para que en modo cliente comun no muestre esto y solo mande reads
+    for (int i = CREATE; i <= END; i++) {
+        auto op = static_cast<Operation > (i);
+        cout << "\t" << MAP_OPERATION.at(op) << ":\t" << MAP_OPERATION_EXPLANATION.at(op) << endl;
     }
     cout << "================================================================<<" << endl;
 }
@@ -83,13 +95,15 @@ void ClientProcess::welcome() {
 bool ClientProcess::readInput(ClientRequest *request) {
     string line;
     getline(cin, line);
-    char command[255];
-    sscanf(line.c_str(), "%s %s %s", command, request->query, request->value);
-    Operation op;
+    char cmd_service[255];
+    char cmd_operation[255];
+    sscanf(line.c_str(), "%s %s %s %s", cmd_operation, cmd_service, request->query, request->value);
+    ServiceOperation op{};
     bool valid = false;
-    string sCommand(command);
-    if (getOperationFromCommand(sCommand, &op)) {
-        request->operation = op;
+    string sCommand(cmd_service);
+    string sOperation(cmd_operation);
+    if (getOperationFromCommand(sCommand, sOperation, &op)) {
+        request->serviceOperation = op;
         valid = true;
     }
     return valid;

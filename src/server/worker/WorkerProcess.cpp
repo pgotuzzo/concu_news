@@ -15,10 +15,9 @@ int WorkerProcess::live() {
         return pid;
     }
 
-
     // Cola para comunicarse con los microservicios
-    Queue<MicroserviceRequest> queue(PATH_QUEUE);
-    MicroserviceRequest microserviceRequest{};
+    Queue<MicroserviceMessage> queue(PATH_QUEUE);
+    MicroserviceMessage microserviceMessage{};
     long workerIdentifier = getpid()+1000;
     bool connected = true;
     while (connected) {
@@ -31,22 +30,29 @@ int WorkerProcess::live() {
             cout << "Cliente desconectado" << endl;
         } else {
             cout << "Pedido: " << endl
-                 << "Commando: " << request.operation << endl
+                 << "Operacion: " << request.serviceOperation.operation << endl
+                 << "Servicio: " << request.serviceOperation.service << endl
                  << "Consulta: " << request.query << endl;
 
-            strcpy(microserviceRequest.query, request.query);
-            microserviceRequest.requesterIdentifier = workerIdentifier;
-            microserviceRequest.type = request.operation;
-            queue.send(microserviceRequest);
+            connected = request.serviceOperation.operation != END;
 
-            cout << "Se envio el pedido al microservicio con el identificador"<< workerIdentifier << endl;
-            queue.receive(&microserviceRequest, workerIdentifier);
-            cout << "Se recibio la respuesta del microservicio para el identificador"<< workerIdentifier << endl;
+            if (connected) {
+                strcpy(microserviceMessage.query, request.query);
+                strcpy(microserviceMessage.value, request.value);
+                microserviceMessage.requesterIdentifier = workerIdentifier;
+                microserviceMessage.type = request.serviceOperation.service;
+                microserviceMessage.operation = request.serviceOperation.operation;
 
-            string response = string(microserviceRequest.value);
-            write(fdClient, response.c_str(), sizeof(char) * response.size());
+                queue.send(microserviceMessage);
 
-            connected = request.operation != END;
+                cout << "Se envio el pedido al microservicio con el identificador "<< workerIdentifier << endl;
+                queue.receive(&microserviceMessage, workerIdentifier);
+                cout << "Se recibio la respuesta del microservicio para el identificador "<< workerIdentifier << endl;
+
+                string response = string(microserviceMessage.value);
+                write(fdClient, response.c_str(), sizeof(char) * response.size());
+            }
         }
     }
+    cout << "Se termino la conexion del worker con identificador "<< workerIdentifier << endl;
 }

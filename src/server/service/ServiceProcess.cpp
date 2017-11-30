@@ -18,25 +18,64 @@ int ServiceProcess::live() {
         return pid;
     }
     cout << "Se inicializo el microservicio " << msType << endl;
-    Queue<MicroserviceRequest> queue(PATH_QUEUE);
+    Queue<MicroserviceMessage> queue(PATH_QUEUE);
     loadInfo();
 
-    MicroserviceRequest microserviceRequest{};
-    queue.receive(&microserviceRequest, msType);
-    cout << "Se recibio un pedido del worker "  << microserviceRequest.requesterIdentifier
+    MicroserviceMessage microserviceMessage{};
+    queue.receive(&microserviceMessage, msType);
+    cout << "Se recibio un pedido del worker "  << microserviceMessage.requesterIdentifier
          << " para el microservicio " << msType << endl;
-    while(microserviceRequest.requesterIdentifier != -1) {
-        strcpy(microserviceRequest.value, "value");
-        microserviceRequest.type = microserviceRequest.requesterIdentifier;
-        queue.send(microserviceRequest);
-        cout << "Se respondio un pedido al worker "  << microserviceRequest.requesterIdentifier
+    while(microserviceMessage.requesterIdentifier != -1) {
+        microserviceMessage.type = microserviceMessage.requesterIdentifier;
+        auto messageQuery = mInfo.find(microserviceMessage.query);
+        switch (microserviceMessage.operation) {
+            case CREATE: {
+                if (messageQuery != mInfo.end()) {
+                    strcpy(microserviceMessage.value, "ERROR: La clave ya existe.");
+                } else {
+                    mInfo[microserviceMessage.query] = microserviceMessage.value;
+                    strcpy(microserviceMessage.value, "CREADO");
+                }
+                break;
+            }
+            case READ: {
+                if (messageQuery != mInfo.end()) {
+                    strcpy(microserviceMessage.value, messageQuery->second.c_str());
+                } else {
+                    strcpy(microserviceMessage.value, "ERROR: La clave no existe.");
+                }
+                break;
+            }
+            case UPDATE: {
+                if (messageQuery != mInfo.end()) {
+                    messageQuery->second = microserviceMessage.value;
+                    strcpy(microserviceMessage.value, "EDITADO");
+                } else {
+                    strcpy(microserviceMessage.value, "ERROR: La clave no existe.");
+                }
+                break;
+            }
+            case DELETE: {
+                if (messageQuery != mInfo.end()) {
+                    mInfo.erase(messageQuery);
+                    strcpy(microserviceMessage.value, "ELIMINADO");
+                } else {
+                    strcpy(microserviceMessage.value, "ERROR: La clave no existe.");
+                }
+                break;
+            }
+            default: {
+                strcpy(microserviceMessage.value, "ERROR");
+            }
+        }
+        queue.send(microserviceMessage);
+        cout << "Se respondio un pedido al worker "  << microserviceMessage.requesterIdentifier
              << " desde el microservicio " << msType << endl;
-
-        queue.receive(&microserviceRequest, msType);
-        cout << "Se recibio un pedido del worker "  << microserviceRequest.requesterIdentifier
+        queue.receive(&microserviceMessage, msType);
+        cout << "Se recibio un pedido del worker "  << microserviceMessage.requesterIdentifier
              << " para el microservicio " << msType << endl;
     }
-    cout << "Finalizando MS" << endl;
+    cout << "Finalizando MS " << msType << endl;
 
     saveInfo();
     exit(0);
