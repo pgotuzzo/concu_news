@@ -1,6 +1,7 @@
 #include <fcntl.h>
 #include <sstream>
 #include <zconf.h>
+#include <cstring>
 #include "FileUtils.h"
 
 void createFileIfNotExists(string path) {

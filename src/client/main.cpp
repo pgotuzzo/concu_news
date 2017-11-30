@@ -1,9 +1,9 @@
 #include <iostream>
 #include <sstream>
-#include "util/Logger.h"
-#include "cons/Path.h"
-#include "client/ClientProcess.h"
-#include "server/ServerProcess.h"
+#include <sys/wait.h>
+#include "../util/Logger.h"
+#include "../cons/Path.h"
+#include "ClientProcess.h"
 
 using namespace std;
 
@@ -47,32 +47,9 @@ void liveClient(string &userName, bool isAdmin) {
     }
 }
 
-void liveServer() {
-    Logger::init(PATH_LOG_SERVER, true);
-    Logger::i("======================================================================");
-    Logger::i("                   Concu News - Server                                ");
-    Logger::i("======================================================================");
-    ServerProcess server;
-    server.live();
-    int res;
-    wait(&res);
-    if (res != 0) {
-        stringstream msg;
-        msg << "Se finalizo de forma abrupta/erronea. Error: " << res << strerror(res);
-        Logger::e(msg.str());
-    } else {
-        Logger::i("Finalizo correctamente!");
-        Logger::i("======================================================================");
-    }
-}
-
 int main(int argc, char **argv) {
     bool successfulInit = true;
     switch (argc) {
-        case 1: {
-            liveServer();
-            break;
-        }
         case 2: {
             string param = string(argv[1]);
             if (param == "-h") {

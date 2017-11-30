@@ -1,3 +1,4 @@
+#include <cstring>
 #include "QueueDestroyException.h"
 
 QueueDestroyException::QueueDestroyException(const string &description) {

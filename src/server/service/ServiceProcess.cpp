@@ -1,6 +1,7 @@
 #include <fcntl.h>
 #include <fstream>
 #include <zconf.h>
+#include <cstring>
 #include "ServiceProcess.h"
 #include "../../util/FileUtils.h"
 

@@ -21,16 +21,17 @@ set(UTILS
         src/util/StringUtils.cpp src/util/StringUtils.h)
 
 set(CLIENT
+        src/client/main.cpp
         src/client/ClientProcess.cpp src/client/ClientProcess.h)
 
 set(SERVER
+        src/server/main.cpp
         src/server/ServerProcess.cpp src/server/ServerProcess.h
         src/server/worker/WorkerProcess.cpp src/server/worker/WorkerProcess.h
         src/server/service/ServiceProcess.cpp src/server/service/ServiceProcess.h)
 
-set(SOURCE_FILES src/main.cpp)
-
-add_executable(concu_news ${SOURCE_FILES} ${IPC} ${CONS} ${UTILS} ${CLIENT} ${SERVER})
+add_executable(server ${SERVER} ${IPC} ${CONS} ${UTILS} )
+add_executable(client ${CLIENT} ${IPC} ${CONS} ${UTILS} )
 
 configure_file(help ${CMAKE_CURRENT_BINARY_DIR}/help COPYONLY)
 
