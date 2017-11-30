@@ -4,28 +4,47 @@
 #include <cstring>
 #include "ServiceProcess.h"
 #include "../../util/FileUtils.h"
+#include "../../cons/Definition.h"
+#include "../../cons/Path.h"
+#include "../../ipc/queue/Queue.h"
 
-ServiceProcess::ServiceProcess(const char *const path) : path(path) {}
+ServiceProcess::ServiceProcess(const char *const path_db, const char *const path_queue,
+                               const long msType): path_db(path_db), path_queue(path_queue),
+                                                   msType(msType) {}
 
 int ServiceProcess::live() {
     int pid = fork();
     if (pid != 0) {
         return pid;
     }
+    cout << "Se inicializo el microservicio " << msType << endl;
+    Queue<MicroserviceRequest> queue(PATH_QUEUE);
     loadInfo();
 
-// FIXME - Eliminar...solo de prueba
-//    for (pair<string, string> entry : mInfo) {
-//        cout << entry.first << " " << entry.second << endl;
-//    }
+    MicroserviceRequest microserviceRequest{};
+    queue.receive(&microserviceRequest, msType);
+    cout << "Se recibio un pedido del worker "  << microserviceRequest.requesterIdentifier
+         << " para el microservicio " << msType << endl;
+    while(microserviceRequest.requesterIdentifier != -1) {
+        strcpy(microserviceRequest.value, "value");
+        microserviceRequest.type = microserviceRequest.requesterIdentifier;
+        queue.send(microserviceRequest);
+        cout << "Se respondio un pedido al worker "  << microserviceRequest.requesterIdentifier
+             << " desde el microservicio " << msType << endl;
+
+        queue.receive(&microserviceRequest, msType);
+        cout << "Se recibio un pedido del worker "  << microserviceRequest.requesterIdentifier
+             << " para el microservicio " << msType << endl;
+    }
+    cout << "Finalizando MS" << endl;
 
     saveInfo();
     exit(0);
 }
 
 void ServiceProcess::loadInfo() {
-    createFileIfNotExists(path);
-    ifstream file(path);
+    createFileIfNotExists(path_db);
+    ifstream file(path_db);
     string line;
     char key[255];
     char value[255];
@@ -39,8 +58,8 @@ void ServiceProcess::loadInfo() {
 }
 
 void ServiceProcess::saveInfo() {
-    createFileIfNotExists(path);
-    ofstream file(path);
+    createFileIfNotExists(path_db);
+    ofstream file(path_db);
     string line;
     for (pair<string, string> entry : mInfo) {
         file << entry.first << " " << entry.second << endl;

@@ -5,19 +5,20 @@
 #include <vector>
 #include <sstream>
 #include <map>
+#include "Constants.h"
 
 using namespace std;
 
 enum Operation {
-    WEATHER = 0,
-    CURRENCY = 1,
-    END = 2
+    WEATHER = 3,
+    CURRENCY = 4,
+    END = 5
 };
 
 const map<Operation, string> MAP_COMMAND = {
-        {WEATHER,  "clima"},
-        {CURRENCY, "moneda"},
-        {END,      "fin"}
+        {WEATHER,  OPERATION_WEATHER},
+        {CURRENCY, OPERATION_CURRENCY},
+        {END,      OPERATION_END}
 };
 
 const map<Operation, string> MAP_COMMAND_EXPLANATION = {
@@ -28,6 +29,13 @@ const map<Operation, string> MAP_COMMAND_EXPLANATION = {
 
 struct ClientRequest {
     Operation operation;
+    char query[255];
+    char value[255];
+};
+
+struct MicroserviceRequest {
+    long type;
+    long requesterIdentifier;
     char query[255];
     char value[255];
 };

@@ -19,7 +19,7 @@ public:
 
     void send(T element) const;
 
-    void receive(T *ptrElement, int type) const;
+    void receive(T *ptrElement, long type) const;
 
     void destroy();
 };
@@ -53,7 +53,7 @@ void Queue<T>::send(T element) const {
 }
 
 template<class T>
-void Queue<T>::receive(T *ptrElement, int type) const {
+void Queue<T>::receive(T *ptrElement, long type) const {
     ssize_t res = msgrcv(id, ptrElement, sizeof(T) - sizeof(long), type, 0);
     if (res == -1) {
         stringstream errorMsg;

@@ -11,7 +11,6 @@ const char *const PATH_DB_TEMPERATURES = "db/temperatures.txt";
 const char *const PATH_DB_CURRENCY = "db/currency.txt";
 
 // Queue
-const char *const PATH_QUEUE_TEMPERATURES = "tmp/temperatures";
-const char *const PATH_QUEUE_CURRENCY = "tmp/currency";
+const char *const PATH_QUEUE = "tmp/queue";
 
 #endif //CONCU_NEWS_PATH_H

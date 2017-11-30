@@ -22,10 +22,6 @@ bool getOperationFromCommand(string &command, Operation *op) {
 ClientProcess::ClientProcess(const char *const name, bool &isAdmin) : name(name), isAdmin(isAdmin) {}
 
 int ClientProcess::live() {
-    int pid = fork();
-    if (pid != 0) {
-        return pid;
-    }
     socket = connectWithServer();
     if (socket == nullptr) {
         cout << "Server no disponible. Intente nuevamente mas tarde" << endl;
@@ -47,7 +43,7 @@ int ClientProcess::live() {
         }
         cout << "Gracias! Vuelvas prontos" << endl;
     }
-    exit(0);
+    return 0;
 }
 
 ClientSocket *ClientProcess::connectWithServer() {

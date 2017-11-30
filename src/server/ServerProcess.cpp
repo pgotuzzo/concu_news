@@ -7,6 +7,8 @@
 #include "worker/WorkerProcess.h"
 #include "service/ServiceProcess.h"
 #include "../cons/Path.h"
+#include "../cons/Definition.h"
+#include "../ipc/queue/Queue.h"
 
 using namespace std;
 
@@ -20,10 +22,10 @@ int ServerProcess::live() {
     // Microservicios
     cout << "Server inicializando..." << endl;
     cout << "Inicializando microservicio para informes de TEMPERATURAS" << endl;
-    ServiceProcess tempService(PATH_DB_TEMPERATURES);
+    ServiceProcess tempService(PATH_DB_TEMPERATURES, PATH_QUEUE, WEATHER);
     tempService.live();
     cout << "Inicializando microservicio para informes de CAMBIO DE MONEDA" << endl;
-    ServiceProcess currencyService(PATH_DB_CURRENCY);
+    ServiceProcess currencyService(PATH_DB_CURRENCY, PATH_QUEUE, CURRENCY);
     currencyService.live();
     cout << "Server inicializado con exito!" << endl;
 

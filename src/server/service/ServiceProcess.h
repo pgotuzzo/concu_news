@@ -8,7 +8,10 @@ using namespace std;
 
 class ServiceProcess {
 private:
-    const char *const path;
+
+    const char *const path_db;
+    const char *const path_queue;
+    const long msType;
     map<string, string> mInfo;
 
     void loadInfo();
@@ -16,7 +19,7 @@ private:
     void saveInfo();
 
 public:
-    ServiceProcess(const char *path);
+    ServiceProcess(const char *const path_db, const char *const path_queue, const long msType);
 
     int live();
 };

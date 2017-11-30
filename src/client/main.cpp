@@ -34,9 +34,7 @@ void liveClient(string &userName, bool isAdmin) {
     Logger::i("                 Concu News - Client " + userName);
     Logger::i("======================================================================");
     ClientProcess client(userName.c_str(), isAdmin);
-    client.live();
-    int res;
-    wait(&res);
+    int res = client.live();
     if (res != 0) {
         stringstream msg;
         msg << "Se finalizo de forma abrupta/erronea. Error: " << res << strerror(res);
