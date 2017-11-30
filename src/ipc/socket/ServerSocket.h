@@ -20,7 +20,7 @@ public:
 
     int getConnection() throw(SocketConnectException);
 
-    void close();
+    void close_conection();
 };
 
 

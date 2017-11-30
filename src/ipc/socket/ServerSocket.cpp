@@ -57,6 +57,6 @@ int ServerSocket::getConnection() throw(SocketConnectException) {
     return fd;
 }
 
-void ServerSocket::close() {
-    ::close(fdSocket);
+void ServerSocket::close_conection() {
+    close(fdSocket);
 }

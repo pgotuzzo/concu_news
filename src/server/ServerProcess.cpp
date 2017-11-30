@@ -10,16 +10,14 @@
 #include "../cons/Definition.h"
 #include <sys/wait.h>
 #include "../ipc/queue/Queue.h"
+#include "../ipc/handler/SignalHandler.h"
+#include "../ipc/handler/SIGTERM_SIGINT_QUIT_Handler.h"
 
 using namespace std;
 
 ServerProcess::ServerProcess() = default;
 
 int ServerProcess::live() {
-    int pid = fork();
-    if (pid != 0) {
-        return pid;
-    }
     // Microservicios
     int MICROSERVICES_COUNT = 2;
     cout << "Server inicializando..." << endl;
@@ -31,31 +29,38 @@ int ServerProcess::live() {
     currencyService.live();
     cout << "Server inicializado con exito!" << endl;
 
+    SIGTERM_SIGINT_QUIT_Handler sigHandler;
+    SignalHandler::getInstance()->registrarHandler(SIGTERM, &sigHandler);
+    SignalHandler::getInstance()->registrarHandler(SIGINT, &sigHandler);
+
+    vector<pid_t > workers;
     // Conexiones
     cout << "Esperando conexiones..." << endl;
-    int counter = 0;
-    // TODO: reemplazar esto con un signal handle y un graceful quit
-    int CONEXIONES_HASTA_PARAR = 1;
     try {
         ServerSocket socket(SERVER_PORT);
-        while (counter < CONEXIONES_HASTA_PARAR) {
+        while (!sigHandler.getGracefulQuit()) {
             int fdClient = socket.getConnection();
             cout << "Cliente conectado. Se le asigna un worker" << endl;
-            WorkerProcess worker(fdClient);
-            worker.live();
-            counter++;
+            WorkerProcess worker(fdClient, &sigHandler);
+            workers.push_back(worker.live());
         }
+        socket.close_conection();
     } catch (SocketCreationException &e) {
         cout << "Algo salio mal a la hora de CREAR el socket...LOGS" << endl;
         cout << e.what() << endl;
     } catch (SocketConnectException &e) {
-        cout << "Algo salio mal a la hora de CONECTARSE al cliente...LOGS" << endl;
-        cout << e.what() << endl;
+        if (!sigHandler.getGracefulQuit()) {
+            cout << "Algo salio mal a la hora de CONECTARSE al cliente...LOGS" << endl;
+            cout << e.what() << endl;
+        }
     }
 
-    for(int i = 0; i < CONEXIONES_HASTA_PARAR; i++) {
-        wait(NULL);
+    for(pid_t worker:workers) {
+        cout << "esperando " <<worker<< endl;
+        waitpid(worker, NULL, 0);
+        cout << "listo " <<worker<< endl;
     }
+
     // Cola para comunicarse con los microservicios
     Queue<MicroserviceMessage> queue(PATH_QUEUE);
     MicroserviceMessage microserviceRequest{};
@@ -69,6 +74,7 @@ int ServerProcess::live() {
         wait(NULL);
     }
     queue.destroy();
+    cout << "Se apago el servidor." << endl;
 
-    exit(0);
+    return 0;
 }

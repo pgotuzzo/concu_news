@@ -14,9 +14,7 @@ int main(int argc, char **argv) {
     Logger::i("                   Concu News - Server                                ");
     Logger::i("======================================================================");
     ServerProcess server;
-    server.live();
-    int res;
-    wait(&res);
+    int res = server.live();
     if (res != 0) {
         stringstream msg;
         msg << "Se finalizo de forma abrupta/erronea. Error: " << res << strerror(res);

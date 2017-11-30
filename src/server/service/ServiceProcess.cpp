@@ -7,12 +7,17 @@
 #include "../../cons/Definition.h"
 #include "../../cons/Path.h"
 #include "../../ipc/queue/Queue.h"
+#include "../../ipc/handler/SIGTERM_SIGINT_QUIT_Handler.h"
+#include "../../ipc/handler/SignalHandler.h"
 
 ServiceProcess::ServiceProcess(const char *const path_db, const char *const path_queue,
                                const long msType): path_db(path_db), path_queue(path_queue),
                                                    msType(msType) {}
 
 int ServiceProcess::live() {
+    SIGTERM_SIGINT_QUIT_Handler sigHandler;
+    SignalHandler::getInstance()->registrarHandler(SIGTERM, &sigHandler);
+    SignalHandler::getInstance()->registrarHandler(SIGINT, &sigHandler);
     int pid = fork();
     if (pid != 0) {
         return pid;
@@ -22,7 +27,16 @@ int ServiceProcess::live() {
     loadInfo();
 
     MicroserviceMessage microserviceMessage{};
-    queue.receive(&microserviceMessage, msType);
+    try {
+        queue.receive(&microserviceMessage, msType);
+    } catch (QueueSndRcvException &e) {
+        if (!sigHandler.getGracefulQuit()) {
+            cout << "Algo salio mal recibiendo o respondiendo un pedido" << endl;
+            cout << e.what() << endl;
+        } else {
+            queue.receive(&microserviceMessage, msType);
+        }
+    }
     cout << "Se recibio un pedido del worker "  << microserviceMessage.requesterIdentifier
          << " para el microservicio " << msType << endl;
     while(microserviceMessage.requesterIdentifier != -1) {
@@ -68,12 +82,19 @@ int ServiceProcess::live() {
                 strcpy(microserviceMessage.value, "ERROR");
             }
         }
-        queue.send(microserviceMessage);
-        cout << "Se respondio un pedido al worker "  << microserviceMessage.requesterIdentifier
-             << " desde el microservicio " << msType << endl;
-        queue.receive(&microserviceMessage, msType);
-        cout << "Se recibio un pedido del worker "  << microserviceMessage.requesterIdentifier
-             << " para el microservicio " << msType << endl;
+        try {
+            queue.send(microserviceMessage);
+            cout << "Se respondio un pedido al worker "  << microserviceMessage.requesterIdentifier
+                 << " desde el microservicio " << msType << endl;
+            queue.receive(&microserviceMessage, msType);
+            cout << "Se recibio un pedido del worker "  << microserviceMessage.requesterIdentifier
+                 << " para el microservicio " << msType << endl;
+        } catch (QueueSndRcvException &e) {
+            if (!sigHandler.getGracefulQuit()) {
+                cout << "Algo salio mal recibiendo o respondiendo un pedido" << endl;
+                cout << e.what() << endl;
+            }
+        }
     }
     cout << "Finalizando MS " << msType << endl;
 

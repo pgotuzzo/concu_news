@@ -4,6 +4,8 @@ project(concu_news)
 set(CMAKE_CXX_STANDARD 11)
 
 set(IPC
+        src/ipc/handler/SignalHandler.cpp src/ipc/handler/SignalHandler.h
+        src/ipc/handler/EventHandler.h src/ipc/handler/SIGTERM_SIGINT_QUIT_Handler.h
         src/ipc/socket/ClientSocket.cpp src/ipc/socket/ClientSocket.h
         src/ipc/socket/ServerSocket.cpp src/ipc/socket/ServerSocket.h
         src/ipc/socket/exception/SocketCreationException.cpp src/ipc/socket/exception/SocketCreationException.h
