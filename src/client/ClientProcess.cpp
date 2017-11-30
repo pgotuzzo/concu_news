@@ -7,7 +7,24 @@
 using namespace std;
 
 
-bool getOperationFromCommand(string command_service, const string &command_operation, ServiceOperation *sop) {
+bool ClientProcess::getOperationFromCommand(string command_service, const string &command_operation, ServiceOperation *sop) {
+    if (!isAdmin) {
+        auto operation = COMMAND_TO_OPERATION.find(command_service);
+        bool valid = operation != COMMAND_TO_OPERATION.end();
+        if (!valid) {
+            auto service = COMMAND_TO_SERVICE.find(command_service);
+            valid = service != COMMAND_TO_SERVICE.end();
+            if (valid) {
+                sop->operation = READ;
+                sop->service = service->second;
+            }
+        } else if (operation->second == END) {
+            sop->operation = operation->second;
+        } else {
+            valid = false;
+        }
+        return valid;
+    }
     auto operation = COMMAND_TO_OPERATION.find(command_operation);
     bool valid = operation != COMMAND_TO_OPERATION.end();
     if (valid) {
@@ -80,10 +97,14 @@ void ClientProcess::welcome() {
         cout << "\t" << MAP_COMMAND.at(op) << ":\t" << MAP_COMMAND_EXPLANATION.at(op) << endl;
     }
     cout << "Y las operaciones posibles:" << endl;
-    // TODO: limitar para que en modo cliente comun no muestre esto y solo mande reads
-    for (int i = CREATE; i <= END; i++) {
-        auto op = static_cast<Operation > (i);
-        cout << "\t" << MAP_OPERATION.at(op) << ":\t" << MAP_OPERATION_EXPLANATION.at(op) << endl;
+    if (isAdmin) {
+        for (int i = CREATE; i <= END; i++) {
+            auto op = static_cast<Operation > (i);
+            cout << "\t" << MAP_OPERATION.at(op) << ":\t" << MAP_OPERATION_EXPLANATION.at(op) << endl;
+        }
+    } else {
+        cout << "\t" << SERVICE_END << ":\t" << MAP_OPERATION_EXPLANATION.at(END) << endl;
+        cout << "\t" << OPERATION_READ << ":\t" << "permite leer datos. Se usa con [SERVICIO] [CLAVE]" << endl;
     }
     cout << "================================================================<<" << endl;
 }
@@ -97,7 +118,12 @@ bool ClientProcess::readInput(ClientRequest *request) {
     getline(cin, line);
     char cmd_service[255];
     char cmd_operation[255];
-    sscanf(line.c_str(), "%s %s %s %s", cmd_operation, cmd_service, request->query, request->value);
+
+    if (isAdmin) {
+        sscanf(line.c_str(), "%s %s %s %s", cmd_operation, cmd_service, request->query, request->value);
+    } else {
+        sscanf(line.c_str(), "%s %s", cmd_service, request->query);
+    }
     ServiceOperation op{};
     bool valid = false;
     string sCommand(cmd_service);

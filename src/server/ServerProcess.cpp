@@ -11,7 +11,6 @@
 #include <sys/wait.h>
 #include "../ipc/queue/Queue.h"
 #include "../ipc/handler/SignalHandler.h"
-#include "../ipc/handler/SIGTERM_SIGINT_QUIT_Handler.h"
 
 using namespace std;
 

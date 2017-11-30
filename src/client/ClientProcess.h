@@ -22,6 +22,7 @@ private:
 
     bool processRequest(ClientRequest request);
 
+    bool getOperationFromCommand(string command_service, const string &command_operation, ServiceOperation *sop);
 public:
     ClientProcess(const char *name, bool &isAdmin);
 
